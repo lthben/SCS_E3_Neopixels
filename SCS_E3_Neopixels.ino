@@ -1,27 +1,27 @@
 /* Author: Benjamin Low (benjamin.low@digimagic.com.sg)
- *
- * Description: Prototype for SCS E3 RFID station NeoPixels.
- * 
- *   There are three strips to light three different RFID reader stations on the table. 
- *   There are three 7cm cubes with three RFID tags each. There are three different
- *   colours to represent each RFID reader station. For each reader, if there is no 
- *   cube detected, it will pulsate its respective colour. If the wrong cube is placed
- *   on it, the strip will turn red. If the right cube is placed on it, the strip will
- *   turn a solid colour for that station instead of pulsating. The commands for the 
- *   strips are read from the serial port. 
- *
- *   NEO_KHZ800  800 KHz bitstream (most NeoPixel products w/WS2812 LEDs)
- *   NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
- *   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
- *   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
- *
- * IMPORTANT: To reduce NeoPixel burnout risk, add 1000 uF capacitor across
- * pixel power leads, add 300 - 500 Ohm resistor on first pixel's data input
- * and minimize distance between Arduino and first pixel.  Avoid connecting
- * on a live circuit...if you must, connect GND first.
- *
- * Last updated: 25 Nov 2015
- */
+
+   Description: Prototype for SCS E3 RFID station NeoPixels.
+
+     There are three strips to light three different RFID reader stations on the table.
+     There are three 7cm cubes with three RFID tags each. There are three different
+     colours to represent each RFID reader station. For each reader, if there is no
+     cube detected, it will pulsate its respective colour. If the wrong cube is placed
+     on it, the strip will turn red. If the right cube is placed on it, the strip will
+     turn a solid colour for that station instead of pulsating. The commands for the
+     strips are read from the serial port.
+
+     NEO_KHZ800  800 KHz bitstream (most NeoPixel products w/WS2812 LEDs)
+     NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
+     NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
+     NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
+
+   IMPORTANT: To reduce NeoPixel burnout risk, add 1000 uF capacitor across
+   pixel power leads, add 300 - 500 Ohm resistor on first pixel's data input
+   and minimize distance between Arduino and first pixel.  Avoid connecting
+   on a live circuit...if you must, connect GND first.
+
+   Last updated: 25 Nov 2015
+*/
 
 #include <Adafruit_NeoPixel.h>
 
@@ -337,9 +337,7 @@ class NeoPatterns : public Adafruit_NeoPixel
 // ------------------------------------------------------
 // Function prototypes for completion callback routines
 // ------------------------------------------------------
-void Strip1Complete();
-void Strip2Complete();
-void Strip3Complete();
+void StripComplete();
 
 // -----------------------------
 // Object declarations
@@ -357,6 +355,10 @@ void setup() {
   Strip1.begin();
   Strip2.begin();
   Strip3.begin();
+
+  Strip1.Pulse(Strip1.Color(0, 0, 0), Strip1.Color(64, 64, 0), 50, 5);
+  Strip2.Pulse(Strip2.Color(0, 0, 0), Strip2.Color(0, 64, 0), 50, 5);
+  Strip3.Pulse(Strip3.Color(0, 0, 0), Strip3.Color(0, 0, 64), 50, 5);
 }
 
 //-------------------------
@@ -397,15 +399,15 @@ void read_from_serial() {
 
     } else if (incomingbyte == '1') { //pulse the first strip yellow
 
-      Strip1.Pulse(Strip1.Color(0, 0, 0), Strip1.Color(127, 127, 0), 50, 10);
+      Strip1.Pulse(Strip1.Color(0, 0, 0), Strip1.Color(64, 64, 0), 50, 5);
 
     } else if (incomingbyte == '2') { //pulse the second strip green
 
-      Strip2.Pulse(Strip2.Color(0, 0, 0), Strip2.Color(0, 127, 0), 50, 10);
+      Strip2.Pulse(Strip2.Color(0, 0, 0), Strip2.Color(0, 64, 0), 50, 5);
 
     } else if (incomingbyte == '3') { //pulse the third strip blue
 
-      Strip3.Pulse(Strip3.Color(0, 0, 0), Strip3.Color(0, 0, 127), 50, 10);
+      Strip3.Pulse(Strip3.Color(0, 0, 0), Strip3.Color(0, 0, 64), 50, 5);
 
     } else if (incomingbyte == '4') { //turn first strip red
 
@@ -446,7 +448,7 @@ void read_from_serial() {
 // -----------------------------
 
 void StripComplete() {
-      if (Strip1.ActivePattern == PULSE) {
+  if (Strip1.ActivePattern == PULSE) {
     Strip1.Reverse();
   }
   if (Strip2.ActivePattern == PULSE) {
