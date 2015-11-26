@@ -446,7 +446,7 @@ void read_from_serial() {
 // -----------------------------
 
 void StripComplete() {
-  if (Strip1.ActivePattern == PULSE) {
+      if (Strip1.ActivePattern == PULSE) {
     Strip1.Reverse();
   }
   if (Strip2.ActivePattern == PULSE) {
