@@ -24,7 +24,7 @@
 */
 
 #include <Adafruit_NeoPixel.h>
-
+    
 enum  pattern { NONE, RAINBOW_CYCLE, THEATER_CHASE, COLOR_WIPE, SCANNER, FADE, PULSE };
 enum  direction { FORWARD, REVERSE };
 
@@ -43,6 +43,11 @@ class NeoPatterns : public Adafruit_NeoPixel
     uint32_t Color1, Color2;  // What colors are in use
     uint16_t TotalSteps;  // total number of steps in the pattern
     uint16_t Index;  // current step within the pattern
+
+    //PRESET COLORS
+    uint32_t MyColor1 = Color(0,210,105); //teal
+    uint32_t MyColor2 = Color(30,200,30); //green
+    uint32_t MyColor3 = Color(255,221,23); //yellow 
 
     void (*OnComplete)();  // Callback on completion of pattern
 
@@ -342,9 +347,9 @@ void StripComplete();
 // -----------------------------
 // Object declarations
 // -----------------------------
-NeoPatterns Strip1(300, 2, NEO_GRB + NEO_KHZ800, &StripComplete);
-NeoPatterns Strip2(300, 4, NEO_GRB + NEO_KHZ800, &StripComplete);
-NeoPatterns Strip3(300, 6, NEO_GRB + NEO_KHZ800, &StripComplete);
+NeoPatterns Strip1(44, 2, NEO_GRB + NEO_KHZ800, &StripComplete);
+NeoPatterns Strip2(44, 4, NEO_GRB + NEO_KHZ800, &StripComplete);
+NeoPatterns Strip3(44, 6, NEO_GRB + NEO_KHZ800, &StripComplete);
 
 //------------------------------
 // setup
@@ -356,9 +361,9 @@ void setup() {
   Strip2.begin();
   Strip3.begin();
 
-  Strip1.Pulse(Strip1.Color(0, 0, 0), Strip1.Color(64, 64, 0), 50, 5);
-  Strip2.Pulse(Strip2.Color(0, 0, 0), Strip2.Color(0, 64, 0), 50, 5);
-  Strip3.Pulse(Strip3.Color(0, 0, 0), Strip3.Color(0, 0, 64), 50, 5);
+  Strip1.Pulse(Strip1.Color(0, 0, 0), Strip1.Color(Strip1.Red(Strip1.MyColor1)/2, Strip1.Green(Strip1.MyColor1)/2, Strip1.Blue(Strip1.MyColor1)/2), 50, 20);
+  Strip2.Pulse(Strip2.Color(0, 0, 0), Strip2.Color(Strip2.Red(Strip2.MyColor2)/2, Strip2.Green(Strip2.MyColor2)/2, Strip2.Blue(Strip2.MyColor2)/2), 50, 20);
+  Strip3.Pulse(Strip3.Color(0, 0, 0), Strip3.Color(Strip3.Red(Strip3.MyColor3)/2, Strip3.Green(Strip3.MyColor3)/2, Strip3.Blue(Strip3.MyColor3)/2), 50, 20);
 }
 
 //-------------------------
@@ -397,17 +402,23 @@ void read_from_serial() {
       Strip3.ActivePattern = NONE;
       Strip3.ColorSet(Strip3.Color(0, 0, 0));
 
-    } else if (incomingbyte == '1') { //pulse the first strip yellow
+    } else if (incomingbyte == '1') { //pulse the first strip MyColor1
+        
+      Strip1.Index = Strip2.Index;
+      Strip3.Index = Strip2.Index;
+      Strip1.Pulse(Strip1.Color(0, 0, 0), Strip1.Color(Strip1.Red(Strip1.MyColor1)/2, Strip1.Green(Strip1.MyColor1)/2, Strip1.Blue(Strip1.MyColor1)/2), 50, 20);
 
-      Strip1.Pulse(Strip1.Color(0, 0, 0), Strip1.Color(64, 64, 0), 50, 5);
+    } else if (incomingbyte == '2') { //pulse the second strip MyColor2
 
-    } else if (incomingbyte == '2') { //pulse the second strip green
+      Strip2.Index = Strip3.Index;
+      Strip1.Index = Strip3.Index;
+      Strip2.Pulse(Strip2.Color(0, 0, 0), Strip2.Color(Strip2.Red(Strip2.MyColor2)/2, Strip2.Green(Strip2.MyColor2)/2, Strip2.Blue(Strip2.MyColor2)/2), 50, 20);
 
-      Strip2.Pulse(Strip2.Color(0, 0, 0), Strip2.Color(0, 64, 0), 50, 5);
+    } else if (incomingbyte == '3') { //pulse the third strip MyColor3
 
-    } else if (incomingbyte == '3') { //pulse the third strip blue
-
-      Strip3.Pulse(Strip3.Color(0, 0, 0), Strip3.Color(0, 0, 64), 50, 5);
+      Strip3.Index = Strip1.Index;
+      Strip2.Index = Strip1.Index;
+      Strip3.Pulse(Strip3.Color(0, 0, 0), Strip3.Color(Strip3.Red(Strip3.MyColor3)/2, Strip3.Green(Strip3.MyColor3)/2, Strip3.Blue(Strip3.MyColor3)/2), 50, 20);
 
     } else if (incomingbyte == '4') { //turn first strip red
 
@@ -424,20 +435,20 @@ void read_from_serial() {
       Strip3.ActivePattern = NONE;
       Strip3.ColorSet(Strip3.Color(127, 0, 0));
 
-    } else if (incomingbyte == '7') { //turn first strip solid yellow
+    } else if (incomingbyte == '7') { //turn first strip solid MyColor1
 
       Strip1.ActivePattern = NONE;
-      Strip1.ColorSet(Strip1.Color(127, 127, 0));
+      Strip1.ColorSet(Strip1.MyColor1);
 
-    } else if (incomingbyte == '8') { //turn second strip solid green
+    } else if (incomingbyte == '8') { //turn second strip solid MyColor2
 
       Strip2.ActivePattern = NONE;
-      Strip2.ColorSet(Strip2.Color(0, 127, 0));
+      Strip2.ColorSet(Strip2.MyColor2);
 
-    } else if (incomingbyte == '9') { //turn third strip solid blue
+    } else if (incomingbyte == '9') { //turn third strip solid MyColor3
 
       Strip3.ActivePattern = NONE;
-      Strip3.ColorSet(Strip3.Color(0, 0, 127));
+      Strip3.ColorSet(Strip3.MyColor3);
 
     }
   }
