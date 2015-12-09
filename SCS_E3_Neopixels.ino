@@ -24,7 +24,7 @@
 */
 
 #include <Adafruit_NeoPixel.h>
-    
+
 enum  pattern { NONE, RAINBOW_CYCLE, THEATER_CHASE, COLOR_WIPE, SCANNER, FADE, PULSE };
 enum  direction { FORWARD, REVERSE };
 
@@ -45,9 +45,9 @@ class NeoPatterns : public Adafruit_NeoPixel
     uint16_t Index;  // current step within the pattern
 
     //PRESET COLORS
-    uint32_t MyColor1 = Color(0,210,105); //teal
-    uint32_t MyColor2 = Color(30,200,30); //green
-    uint32_t MyColor3 = Color(255,221,23); //yellow 
+    uint32_t MyColor1 = Color(0, 210, 105); //teal
+    uint32_t MyColor2 = Color(30, 200, 30); //green
+    uint32_t MyColor3 = Color(255, 221, 23); //yellow
 
     void (*OnComplete)();  // Callback on completion of pattern
 
@@ -56,6 +56,10 @@ class NeoPatterns : public Adafruit_NeoPixel
       : Adafruit_NeoPixel(pixels, pin, type)
     {
       OnComplete = callback;
+    }
+
+    uint16_t get_index() {
+      return Index;
     }
 
     // Update the pattern
@@ -263,14 +267,14 @@ class NeoPatterns : public Adafruit_NeoPixel
     }
 
     //Initialise for a pulse
-    void Pulse(uint32_t color1, uint32_t color2, uint16_t steps, uint8_t interval, direction dir = FORWARD)
+    void Pulse(uint32_t color1, uint32_t color2, uint16_t steps, uint8_t interval, uint16_t index = 0, direction dir = FORWARD)
     {
       ActivePattern = PULSE;
       Interval = interval;
       TotalSteps = steps;
       Color1 = color1;
       Color2 = color2;
-      Index = 0;
+      Index = index;
       Direction = dir;
     }
 
@@ -361,9 +365,9 @@ void setup() {
   Strip2.begin();
   Strip3.begin();
 
-  Strip1.Pulse(Strip1.Color(0, 0, 0), Strip1.Color(Strip1.Red(Strip1.MyColor1)/2, Strip1.Green(Strip1.MyColor1)/2, Strip1.Blue(Strip1.MyColor1)/2), 50, 20);
-  Strip2.Pulse(Strip2.Color(0, 0, 0), Strip2.Color(Strip2.Red(Strip2.MyColor2)/2, Strip2.Green(Strip2.MyColor2)/2, Strip2.Blue(Strip2.MyColor2)/2), 50, 20);
-  Strip3.Pulse(Strip3.Color(0, 0, 0), Strip3.Color(Strip3.Red(Strip3.MyColor3)/2, Strip3.Green(Strip3.MyColor3)/2, Strip3.Blue(Strip3.MyColor3)/2), 50, 20);
+  Strip1.Pulse(Strip1.Color(0, 0, 0), Strip1.Color(Strip1.Red(Strip1.MyColor1) / 2, Strip1.Green(Strip1.MyColor1) / 2, Strip1.Blue(Strip1.MyColor1) / 2), 50, 20);
+  Strip2.Pulse(Strip2.Color(0, 0, 0), Strip2.Color(Strip2.Red(Strip2.MyColor2) / 2, Strip2.Green(Strip2.MyColor2) / 2, Strip2.Blue(Strip2.MyColor2) / 2), 50, 20);
+  Strip3.Pulse(Strip3.Color(0, 0, 0), Strip3.Color(Strip3.Red(Strip3.MyColor3) / 2, Strip3.Green(Strip3.MyColor3) / 2, Strip3.Blue(Strip3.MyColor3) / 2), 50, 20);
 }
 
 //-------------------------
@@ -403,22 +407,25 @@ void read_from_serial() {
       Strip3.ColorSet(Strip3.Color(0, 0, 0));
 
     } else if (incomingbyte == '1') { //pulse the first strip MyColor1
-        
-      Strip1.Index = Strip2.Index;
-      Strip3.Index = Strip2.Index;
-      Strip1.Pulse(Strip1.Color(0, 0, 0), Strip1.Color(Strip1.Red(Strip1.MyColor1)/2, Strip1.Green(Strip1.MyColor1)/2, Strip1.Blue(Strip1.MyColor1)/2), 50, 20);
+
+      //      Strip1.Index = Strip2.Index;
+      //      Strip3.Index = Strip2.Index;
+      uint16_t index = Strip2.get_index();
+      Strip1.Pulse(Strip1.Color(0, 0, 0), Strip1.Color(Strip1.Red(Strip1.MyColor1) / 2, Strip1.Green(Strip1.MyColor1) / 2, Strip1.Blue(Strip1.MyColor1) / 2), 50, 20, index);
 
     } else if (incomingbyte == '2') { //pulse the second strip MyColor2
 
-      Strip2.Index = Strip3.Index;
-      Strip1.Index = Strip3.Index;
-      Strip2.Pulse(Strip2.Color(0, 0, 0), Strip2.Color(Strip2.Red(Strip2.MyColor2)/2, Strip2.Green(Strip2.MyColor2)/2, Strip2.Blue(Strip2.MyColor2)/2), 50, 20);
+      //      Strip2.Index = Strip3.Index;
+      //      Strip1.Index = Strip3.Index;
+      uint16_t index = Strip3.get_index();
+      Strip2.Pulse(Strip2.Color(0, 0, 0), Strip2.Color(Strip2.Red(Strip2.MyColor2) / 2, Strip2.Green(Strip2.MyColor2) / 2, Strip2.Blue(Strip2.MyColor2) / 2), 50, 20, index);
 
     } else if (incomingbyte == '3') { //pulse the third strip MyColor3
 
-      Strip3.Index = Strip1.Index;
-      Strip2.Index = Strip1.Index;
-      Strip3.Pulse(Strip3.Color(0, 0, 0), Strip3.Color(Strip3.Red(Strip3.MyColor3)/2, Strip3.Green(Strip3.MyColor3)/2, Strip3.Blue(Strip3.MyColor3)/2), 50, 20);
+      //      Strip3.Index = Strip1.Index;
+      //      Strip2.Index = Strip1.Index;
+      uint16_t index =  Strip1.get_index();
+      Strip3.Pulse(Strip3.Color(0, 0, 0), Strip3.Color(Strip3.Red(Strip3.MyColor3) / 2, Strip3.Green(Strip3.MyColor3) / 2, Strip3.Blue(Strip3.MyColor3) / 2), 50, 20, index);
 
     } else if (incomingbyte == '4') { //turn first strip red
 
